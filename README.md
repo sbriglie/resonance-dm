@@ -1,6 +1,9 @@
 # resonance-dm
-Public release of the Mathematica module used to generate the spectra shown
-in https://doi.org/10.1007/JHEP11(2015)171. All the necessary functions and the parameters that are
+Public release of the [Mathematica](https://www.wolfram.com/mathematica) module used to generate the spectra shown
+in https://doi.org/10.1007/JHEP11(2015)171. 
+
+## Usage
+All the necessary functions and the parameters that are
 independent of the considered scenario are defined in resonance.m, which can
 be imported either in a Mathematica notebook or in a *.m script. Two such 
 sample scripts are provided in equil.m and noneq.m, to be used to solve the
