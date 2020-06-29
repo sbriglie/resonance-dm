@@ -29,12 +29,16 @@ startcondtau = vecYzero[3, Tstart, 17.80 10^(-6)];
 startconde = vecYzeroasym[1, Tstart, Ynue,Ynumu,Ynutau];
 startcondmu = vecYzeroasym[2, Tstart, Ynue,Ynumu,Ynutau];
 startcondtau = vecYzeroasym[3, Tstart, Ynue,Ynumu,Ynutau];
+
+the vecYzero and vecYzeroasym functions translate a neutrino asymmetry Y_nu into
+a lepton flavor asymmetry Y_a
 *)
 
 (*one can clearly also directly input their own values for the Y_a/s into
 the startcond* variables*)
 
-
+(*define the desired accuracy. Increase this if you see noise in the spectrum*)
+myacc = 10;
 
 (*define ff*)
 ff[T_] := Evaluate@Array[Unique[][T] &, 200];
@@ -54,9 +58,9 @@ Ye[Tstart] == startconde,
     Table[ff'[T][[i]] == -1/T totfitYf[T, Ye[T], Ymu[T], Yt[T], i, 
         ff[T][[i]]], {i, 1, 200}], 
     Table[ff[Tstart][[i]] == 0, {i, 1, 200}]], {Ye, Ymu, Yt, ff[T]},
- {T, Tstart, Tend},AccuracyGoal->10]; 
+ {T, Tstart, Tend},AccuracyGoal->myacc]; 
 
-(*get a table with k*and f_{k*} and its interpolator*)
+(*get a table with k* (in MeV) and f_{k*} and its interpolator*)
 final = Table[{Tend gamma[[19800 + i, 2]] (heff[Tend]/heff[1.])^(1/3),
      solsmallY[[1, 4, 2, i]] /. {T -> Tend}}, {i, 1, 200}];
 finalint = Interpolation[final];
