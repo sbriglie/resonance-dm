@@ -1,6 +1,8 @@
 # resonance-dm
 Public release of the [Mathematica](https://www.wolfram.com/mathematica) module used to generate the spectra shown
-in https://doi.org/10.1007/JHEP11(2015)171. 
+in https://doi.org/10.1007/JHEP11(2015)171.
+[![DOI](https://zenodo.org/badge/275853039.svg)](https://zenodo.org/badge/latestdoi/275853039)
+
 
 ## Usage
 All the necessary functions and the parameters that are
