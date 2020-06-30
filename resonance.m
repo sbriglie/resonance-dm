@@ -51,7 +51,7 @@ Tlist = Import["Tlist", "List"];
 (*this is a table of N_c,eff, used to model hadronic effects as in Ref. [27].
 It contains several other useful thermodynamical quantities.*)
 ncefftab = Import["Nceff_expanded.dat", "Table",
-	HeaderLines->1];
+	HeaderLines->2];
 
 (*construct an array of stored values of chi for all the masses at the
 grid temperatures*)

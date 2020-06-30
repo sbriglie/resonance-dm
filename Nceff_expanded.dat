@@ -1,3 +1,4 @@
+#SM thermodynamics from http://www.laine.itp.unibe.ch/eos06 and http://arxiv.org/abs/hep-ph/0603048
 #   T/MeV           Nceff           geff            heff            c_s^2
     0.400000E+04    0.288220E+01    0.836654E+02    0.834256E+02    0.331018E+00
     0.367854E+04    0.287907E+01    0.835422E+02    0.832689E+02    0.330678E+00
