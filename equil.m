@@ -1,8 +1,15 @@
 (*driver for the case of equilibrated lepton densities. the numbers here 
 refer to case c of the paper, with the central value for \sin^2(\theta)*)
 
-(*written by Jacopo Ghiglieri, May-June 2015*)
+(*written by Jacopo Ghiglieri, May-June 2015
 
+updated in July 2020 to include the possibility (largely untested
+and disabled by default) of running with a newer momentum grid, stretching
+farther into the infrared
+*)
+
+(*the new grid is disabled by default*)
+grid2020=False
 
 
 <<resonance.m
@@ -38,7 +45,7 @@ the startcond* variables*)
 myacc = 10;
 
 (*define ff*)
-ff[T_] := Evaluate@Array[Unique[][T] &, 200];
+ff[T_] := Evaluate@Array[Unique[][T] &, nbins];
 
 
 (*solve the coupled 3.19 and 3.21. need very high accuracy to catch
@@ -49,18 +56,18 @@ solsmallY = NDSolve[Join[{Yl'[T] == -1/T(totfitYintktbackfasteq[1,T,Yl[T],ff[T]]
        startconde  + 
         startcondmu + 
         startcondtau},
-(*this are the 200 differential equations for each gridpoint of f_{k_T}*)  
+(*this are the nbins differential equations for each gridpoint of f_{k_T}*)  
      Table[ff'[T][[i]] == -1/T totfitYfeq[T, Yl[T], i, ff[T][[i]]], {i, 
-       1, 200}], Table[ff[Tstart][[i]] == 0, {i, 1, 200}]], {Yl, 
+       1, nbins}], Table[ff[Tstart][[i]] == 0, {i, 1, nbins}]], {Yl, 
      ff[T]}, {T, Tstart, Tend},AccuracyGoal->myacc];
 
 
 (*get a table with k* (in MeV) and f_{k*} and its interpolator*)
-final = Table[{Tend gamma[[19800 + i, 2]] (heff[Tend]/heff[1.])^(1/3),
-     solsmallY[[1, 2, 2, i]] /. {T -> Tend}}, {i, 1, 200}];
+final = Table[{Tend gamma[[(ntemp-1)*nbins + i, 2]] (heff[Tend]/heff[1.])^(1/3),
+     solsmallY[[1, 2, 2, i]] /. {T -> Tend}}, {i, 1, nbins}];
 finalint = Interpolation[final];
 (*the abundance is simply given by 3.28*)
 
 abund = 6950 heff[1.]/heff[Tend]/(2 Pi^2) mi/(7.1 10^-3) NIntegrate[k^2 finalint[k], 
-{k, gamma[[19801, 2]] Tend (heff[Tend]/heff[1.])^(1/3), gamma[[20000, 2]] (heff[Tend]/heff[1.])^(1/3) Tend}]/Tend^3;
+{k, gamma[[(ntemp-1)*nbins+1, 2]] Tend (heff[Tend]/heff[1.])^(1/3), gamma[[ntemp*nbins, 2]] (heff[Tend]/heff[1.])^(1/3) Tend}]/Tend^3;
 

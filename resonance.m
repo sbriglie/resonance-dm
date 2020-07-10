@@ -3,11 +3,27 @@ this solves the equations for the non-equilibrated lepton active flavours,
 i.e. equations (3.19) and (3.20) in the paper.
 
 written by Jacopo Ghiglieri, May-June 2015
+
+updated in July 2020 to include the possibility (largely untested
+and disabled by default) of running with a newer momentum grid, stretching
+farther into the infrared
 *)
+
+(*to this end, we set up here the code to switch between the two grids*)
+nbins = 200;
+gridfiles={"hatIQ_M0007_alpha1.dat","hatIQ_M0007_alpha2.dat","hatIQ_M0007_alpha3.dat"};
+If[grid2020==True,
+Print["--------------------"];
+Print["WARNING: running with the 2020 grid, largely untested"];
+Print["--------------------"];
+nbins = 250;
+gridfiles={"hatIQ_M0007_alpha1_extended_k_range.dat","hatIQ_M0007_alpha2_extended_k_range.dat",
+"hatIQ_M0007_alpha3_extended_k_range.dat"}];
+
 
 (*the basic idea is that, as explained in Sec. 3.3., we solve along a trajectory
 of redshifting momentum. Hence the function f_{k_T} is defined on a grid of 
-200 momenta k whose k/T ratio is different at each T*)
+nbins momenta k whose k/T ratio is different at each T*)
 
 
 (*first set up the parameters. all mass scales are in MeV*)
@@ -40,14 +56,15 @@ hatb[a_, T_] := 16/( Pi GF Sqrt[2] mw^2/Pi) (7 Pi^2/360 cosw^2 +
 the hatIQ files are the active neutrino  widths for the 3 flavours,
 as in Eq. (3.9), as a function of the temperature and of a redshifting
 momentum grid k_T as in (3.17)*)
-gamma = Import["hatIQ_M0007_alpha1.dat", "Table",
+gamma = Import[gridfiles[[1]], "Table",
 	HeaderLines->6];
-gamma2 =Import["hatIQ_M0007_alpha2.dat", "Table",
+gamma2 =Import[gridfiles[[2]], "Table",
 	HeaderLines->6];
-gamma3 = Import["hatIQ_M0007_alpha3.dat", "Table",
+gamma3 = Import[gridfiles[[3]], "Table",
 	HeaderLines->6];
 (*this is the list of temperature grid points (in MeV)*)
 Tlist = Import["Tlist", "List"]; 
+ntemp = Length[Tlist];
 (*this is a table of N_c,eff, used to model hadronic effects as in Ref. [27].
 It contains several other useful thermodynamical quantities.*)
 ncefftab = Import["Nceff_expanded.dat", "Table",
@@ -80,11 +97,11 @@ heff =  Interpolation[ncefftab[[All, {1, 4}]]];
 cs2 =  Interpolation[ncefftab[[All, {1, 5}]]]; 
 (*construct three tables with T/MeV, k/MeV, \hat I_Q*)
 gammafit = Table[{{gamma[[i, 1]], gamma[[i, 1]] gamma[[i, 2]]}, 
-   gamma[[i, 3]]}, {i, 1, 20000}];
+   gamma[[i, 3]]}, {i, 1, ntemp*nbins}];
 gammafit2 =  Table[{{gamma2[[i, 1]], gamma2[[i, 1]] gamma2[[i, 2]]}, 
-   gamma2[[i, 3]]}, {i, 1, 20000}];
+   gamma2[[i, 3]]}, {i, 1, ntemp*nbins}];
 gammafit3 = Table[{{gamma3[[i, 1]], gamma3[[i, 1]] gamma3[[i, 2]]}, 
-   gamma3[[i, 3]]}, {i, 1, 20000}];
+   gamma3[[i, 3]]}, {i, 1, ntemp*nbins}];
 (*construct a vector of two-variable interpolators \hat I_Q(T,k)*)
 g3d ={ Interpolation[ gammafit],
 	Interpolation[  gammafit2],
@@ -233,7 +250,7 @@ be handled well, provided the accuracy used later in NDSolve is high enough.
           45 T^3 heff[T]))( 
 NIntegrate[kt^2 ((-(ffit[kt] - 1/(Exp[(e1 + mua)/T] + 1) ) rpm + (ffit[kt] 
 - 1/(Exp[(e1 - mua)/T] + 1) ) rpp)), {kt,gamma[[1, 2]] T
-     (heff[T]/heff[Tstart])^(1/3), gamma[[200, 2]] T
+     (heff[T]/heff[Tstart])^(1/3), gamma[[nbins, 2]] T
      (heff[T]/heff[Tstart])^(1/3)},   MaxRecursion -> 200, 
      Method -> {"LocalAdaptive", "SymbolicProcessing" -> 0}]+
 (1/2 kt^3 ((-(ffit[kt] - 1/(Exp[(e1 + mua)/T] + 1) ) rpm + (ffit[kt] 
@@ -264,7 +281,7 @@ gammaG = GF^2 T^4 e1 g3d[[a]][T, kt];
           45 T^3 heff[T])) (NIntegrate[ 
      kt^2 ((-(ffit[kt] - 1/(Exp[(e1 + mua)/T] + 1) ) rpm + (ffit[
              kt] - 1/(Exp[(e1 - mua)/T] + 1) ) rpp)), {kt, 
-      gamma[[1, 2]] T (heff[T]/heff[Tstart])^(1/3), gamma[[200, 2]] T (heff[T]/heff[Tstart])^(1/3)}, 
+      gamma[[1, 2]] T (heff[T]/heff[Tstart])^(1/3), gamma[[nbins, 2]] T (heff[T]/heff[Tstart])^(1/3)}, 
      MaxRecursion -> 200, 
      Method -> {"LocalAdaptive", "SymbolicProcessing" -> 0}]+
 (1/2  kt^3 ((-(ffit[kt] - 1/(Exp[(e1 + mua)/T] + 1) ) rpm + (ffit[
